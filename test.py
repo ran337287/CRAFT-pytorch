@@ -28,14 +28,14 @@ import zipfile
 from craft import CRAFT
 
 from collections import OrderedDict
-def copyStateDict(state_dict):
-    if list(state_dict.keys())[0].startswith("module"):
+def copyStateDict(state_dict): #.module 是模型并行时DataParrallel进行多GPU训练时，保存模型会出现的形式net.module
+    if list(state_dict.keys())[0].startswith("module"): #检查字符串的指定开头‘module’
         start_idx = 1
     else:
         start_idx = 0
     new_state_dict = OrderedDict()
-    for k, v in state_dict.items():
-        name = ".".join(k.split(".")[start_idx:])
+    for k, v in state_dict.items(): 
+        name = ".".join(k.split(".")[start_idx:]) #网络层名称去除module, k=module.basenet.slice1.0.weight,使得预训练模型与模型名称对应上
         new_state_dict[name] = v
     return new_state_dict
 
@@ -46,7 +46,7 @@ parser = argparse.ArgumentParser(description='CRAFT Text Detection')
 parser.add_argument('--trained_model', default='weights/craft_mlt_25k.pth', type=str, help='pretrained model')
 parser.add_argument('--text_threshold', default=0.7, type=float, help='text confidence threshold')
 parser.add_argument('--low_text', default=0.4, type=float, help='text low-bound score')
-parser.add_argument('--link_threshold', default=0.4, type=float, help='link confidence threshold')
+parser.add_argument('--link_threshold', default=0.4, type=float, help='link confidence threshold') #邻域关系阈值
 parser.add_argument('--cuda', default=True, type=str2bool, help='Use cuda for inference')
 parser.add_argument('--canvas_size', default=1280, type=int, help='image size for inference')
 parser.add_argument('--mag_ratio', default=1.5, type=float, help='image magnification ratio')
